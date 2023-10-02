@@ -14,17 +14,32 @@ public class TelegramNotification implements Notify {
 
   @Value("${bot.tele.chat_id}")
   private String chatId;
+
+  @Value("${bot.tele.parse_mode}")
+  private String parseMode;
+
   private final TelegramClient telegramClient;
 
   @EventListener(ApplicationReadyEvent.class)
-  public void test(){
-    sendMessage("Hello");
+  public void test() {
+
+    StringBuilder messageBuilder = new StringBuilder();
+
+    // Add table headers
+    messageBuilder.append("STT | CODE | CHANGE | VOL | V_10 | V_20\n");
+    for(int i=1;i<=6;i++){
+      for(int j=1;j<=6;j++){
+        messageBuilder.append("cell").append(" | ");
+      }
+      messageBuilder.append("\n");
+    }
+    sendMessage(messageBuilder.toString());
   }
 
   @Override
   public void sendMessage(String message) {
-
-    System.out.println("aaa");
-    telegramClient.notify(chatId,"Hello");
+    SendMessageRequest request =
+        SendMessageRequest.builder().chatId(chatId).parseMode(parseMode).text(message).build();
+    telegramClient.notify(request);
   }
 }
