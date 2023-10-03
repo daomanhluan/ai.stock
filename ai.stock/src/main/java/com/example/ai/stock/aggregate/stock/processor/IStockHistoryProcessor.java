@@ -2,11 +2,13 @@ package com.example.ai.stock.aggregate.stock.processor;
 
 import com.example.ai.stock.aggregate.stock.model.StockHistory;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IStockHistoryProcessor {
 
   List<StockHistory> findByCode(String code);
+  List<StockHistory> findByCodesAndDay(List<String> code, LocalDate date);
 
   void enrichDataStatisticYesterday(List<StockHistory> stockHistories);
 

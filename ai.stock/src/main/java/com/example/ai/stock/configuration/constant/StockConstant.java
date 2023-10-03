@@ -5,6 +5,7 @@ import java.util.List;
 
 public class StockConstant {
 
+  public  static List<String> ANALYSIS_STOCKS = Arrays.asList("SSI");
   public static List<String> CHUNG_KHOAN =
       Arrays.asList(
           "SSI", "APG", "APS", "BSI", "BVS", "CTS", "EVS", "FTS", "HBS", "HCM", "IVS", "MBS", "ORS",
@@ -16,6 +17,5 @@ public class StockConstant {
           "VGS");
 
   public static List<String> PHAN_BON =
-      //          "DCM",
-      Arrays.asList("BFC", "DPM", "SFG", "VAF", "LAS", "NFC", "PMB", "PSW");
+      Arrays.asList("DCM","BFC", "DPM", "SFG", "VAF", "LAS", "NFC", "PMB", "PSW");
 }

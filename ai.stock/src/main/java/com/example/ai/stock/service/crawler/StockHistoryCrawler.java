@@ -41,7 +41,6 @@ public class StockHistoryCrawler implements CrawlerData {
   @Value("${cafef-host-lich-su-gia}")
   private String URL_API;
 
-//  "SSI","NKG"
 
 //  @EventListener(ApplicationReadyEvent.class)
   @Override
@@ -49,7 +48,7 @@ public class StockHistoryCrawler implements CrawlerData {
 
     List<StockCategoryEntity> stockCategoryEntities = stockCategoryRepository.findAll();
     for (StockCategoryEntity stockCategoryEntity : stockCategoryEntities) {
-      if(!StockConstant.CHUNG_KHOAN.contains(stockCategoryEntity.getCode())) continue;
+      if(!StockConstant.PHAN_BON.contains(stockCategoryEntity.getCode())) continue;
 
       String stockCode = stockCategoryEntity.getCode();
       List<StockHistory> stockHistories =
@@ -58,7 +57,7 @@ public class StockHistoryCrawler implements CrawlerData {
 
       Thread.sleep(100);
     }
-    System.out.println("=====================================DONE=====================================");
+    System.out.println("=====================================StockHistoryCrawler DONE=====================================");
   }
 
   private void saveDB(List<StockHistory> stockHistories) {

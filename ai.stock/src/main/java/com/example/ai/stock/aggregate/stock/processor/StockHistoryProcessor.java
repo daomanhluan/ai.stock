@@ -1,9 +1,7 @@
 package com.example.ai.stock.aggregate.stock.processor;
 
 import com.example.ai.stock.aggregate.stock.model.AverageDataStatistic;
-import com.example.ai.stock.aggregate.stock.model.StockCategory;
 import com.example.ai.stock.aggregate.stock.model.StockHistory;
-import com.example.ai.stock.configuration.constant.StockConstant;
 import com.example.ai.stock.infrastruture.repository.StockCategoryRepository;
 import com.example.ai.stock.infrastruture.repository.StockHistoryRepository;
 import com.example.ai.stock.service.utils.JsonUtils;
@@ -14,10 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,7 +27,30 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
   @Override
   public List<StockHistory> findByCode(String code) {
     List<StockHistory> stockHistories =
-        ModelMapperUtils.mapList(stockHistoryRepository.findByCode(code), StockHistory.class);
+            ModelMapperUtils.mapList(stockHistoryRepository.findByCode(code), StockHistory.class);
+    for (StockHistory stockHistory : stockHistories) {
+      if (Objects.nonNull(stockHistory.getDataStatisticYesterday())) {
+        try {
+          stockHistory.setAverageDataStatisticYesterday(
+                  JsonUtils.map(stockHistory.getDataStatisticYesterday(), new TypeReference<>() {}));
+        } catch (Exception e) {
+        }
+      }
+      if (Objects.nonNull(stockHistory.getAverageDataStatisticToday())) {
+        try {
+          stockHistory.setAverageDataStatisticToday(
+                  JsonUtils.map(stockHistory.getDataStatisticToday(), new TypeReference<>() {}));
+        } catch (Exception e) {
+        }
+      }
+    }
+    return stockHistories;
+  }
+
+  @Override
+  public List<StockHistory> findByCodesAndDay(List<String> codes, LocalDate date) {
+    List<StockHistory> stockHistories =
+        ModelMapperUtils.mapList(stockHistoryRepository.findByCodeInAndDay(codes, date), StockHistory.class);
     for (StockHistory stockHistory : stockHistories) {
       if (Objects.nonNull(stockHistory.getDataStatisticYesterday())) {
         try {
@@ -63,7 +82,7 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
       List<StockHistory> stockHistories200Day = pagingData(recordProcessed, 200);
 
       recordProcessed.add(stockHistory);
-      if(stockHistories10Day.isEmpty()) continue;
+      if (stockHistories10Day.isEmpty()) continue;
 
       try {
         AverageDataStatistic dataYesterday =
@@ -78,7 +97,6 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
         log.error(
             "JsonProcessingException enrichDataStatisticYesterday {} {}", e, stockHistory.getId());
       }
-
     }
   }
 
@@ -148,56 +166,62 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
 
   @Override
   public void enrichDataStatisticToday(List<StockHistory> stockHistories) {
-    for(StockHistory stockHistory:stockHistories){
+    for (StockHistory stockHistory : stockHistories) {
       AverageDataStatistic dataYesterday = stockHistory.getAverageDataStatisticYesterday();
-      if(Objects.nonNull(dataYesterday)){
-        AverageDataStatistic dataToday = AverageDataStatistic.builder()
-            .averagePrice10Day(
-                (dataYesterday.getAveragePrice10Day() * 10
-                        + stockHistory.getClosedPrice()
-                        - dataYesterday.getLastPrice10Day())
-                    / 10)
-            .averagePrice20Day(
-                (dataYesterday.getAveragePrice20Day() * 20
-                        + stockHistory.getClosedPrice()
-                        - dataYesterday.getLastPrice20Day())
-                    / 20)
-            .averagePrice50ay(
-                (dataYesterday.getAveragePrice50ay() * 50
-                        + stockHistory.getClosedPrice()
-                        - dataYesterday.getLastPrice50Day())
-                    / 50)
-            .averagePrice100Day(
-                (dataYesterday.getAveragePrice100Day() * 100
-                        + stockHistory.getClosedPrice()
-                        - dataYesterday.getLastPrice100Day())
-                    / 100)
-            .averagePrice200Day(
-                (dataYesterday.getAveragePrice200Day() * 200
-                        + stockHistory.getClosedPrice()
-                        - dataYesterday.getLastPrice200Day())
-                    / 200)
-            .averageVolume10Day(
+      if (Objects.nonNull(dataYesterday)) {
+        AverageDataStatistic dataToday =
+            AverageDataStatistic.builder()
+                .averagePrice10Day(
+                    (dataYesterday.getAveragePrice10Day() * 10
+                            + stockHistory.getClosedPrice()
+                            - dataYesterday.getLastPrice10Day())
+                        / 10)
+                .averagePrice20Day(
+                    (dataYesterday.getAveragePrice20Day() * 20
+                            + stockHistory.getClosedPrice()
+                            - dataYesterday.getLastPrice20Day())
+                        / 20)
+                .averagePrice50ay(
+                    (dataYesterday.getAveragePrice50ay() * 50
+                            + stockHistory.getClosedPrice()
+                            - dataYesterday.getLastPrice50Day())
+                        / 50)
+                .averagePrice100Day(
+                    (dataYesterday.getAveragePrice100Day() * 100
+                            + stockHistory.getClosedPrice()
+                            - dataYesterday.getLastPrice100Day())
+                        / 100)
+                .averagePrice200Day(
+                    (dataYesterday.getAveragePrice200Day() * 200
+                            + stockHistory.getClosedPrice()
+                            - dataYesterday.getLastPrice200Day())
+                        / 200)
+                .averageVolume10Day(
                     (dataYesterday.getAverageVolume10Day() * 10
-                    + stockHistory.getVolume()
-                    - dataYesterday.getLastVolume10Day())/10)
+                            + stockHistory.getVolume()
+                            - dataYesterday.getLastVolume10Day())
+                        / 10)
                 .averageVolume20Day(
-                        (dataYesterday.getAverageVolume20Day() * 20
-                                + stockHistory.getVolume()
-                                - dataYesterday.getLastVolume20Day())/20)
+                    (dataYesterday.getAverageVolume20Day() * 20
+                            + stockHistory.getVolume()
+                            - dataYesterday.getLastVolume20Day())
+                        / 20)
                 .averageVolume50Day(
-                        (dataYesterday.getAverageVolume50Day() * 50
-                                + stockHistory.getVolume()
-                                - dataYesterday.getLastVolume50Day())/50)
+                    (dataYesterday.getAverageVolume50Day() * 50
+                            + stockHistory.getVolume()
+                            - dataYesterday.getLastVolume50Day())
+                        / 50)
                 .averageVolume100Day(
-                        (dataYesterday.getAverageVolume100Day() * 100
-                                + stockHistory.getVolume()
-                                - dataYesterday.getLastVolume100Day())/100)
+                    (dataYesterday.getAverageVolume100Day() * 100
+                            + stockHistory.getVolume()
+                            - dataYesterday.getLastVolume100Day())
+                        / 100)
                 .averageVolume200Day(
-                        (dataYesterday.getAverageVolume200Day() * 200
-                                + stockHistory.getVolume()
-                                - dataYesterday.getLastVolume200Day())/200)
-            .build();
+                    (dataYesterday.getAverageVolume200Day() * 200
+                            + stockHistory.getVolume()
+                            - dataYesterday.getLastVolume200Day())
+                        / 200)
+                .build();
 
         try {
           stockHistory.setDataStatisticToday(JsonUtils.toJson(dataToday));
@@ -206,7 +230,6 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
         }
       }
     }
-
   }
 
   @Override

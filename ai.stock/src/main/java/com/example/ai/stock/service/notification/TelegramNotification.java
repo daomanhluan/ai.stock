@@ -1,11 +1,11 @@
 package com.example.ai.stock.service.notification;
 
 import com.example.ai.stock.infrastruture.feign_client.TelegramClient;
+import com.example.ai.stock.infrastruture.request.MessageTelegramRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -20,7 +20,7 @@ public class TelegramNotification implements Notify {
 
   private final TelegramClient telegramClient;
 
-  @EventListener(ApplicationReadyEvent.class)
+//  @EventListener(ApplicationReadyEvent.class)
   public void test() {
 
     StringBuilder messageBuilder = new StringBuilder();
@@ -38,8 +38,8 @@ public class TelegramNotification implements Notify {
 
   @Override
   public void sendMessage(String message) {
-    SendMessageRequest request =
-        SendMessageRequest.builder().chatId(chatId).parseMode(parseMode).text(message).build();
+    MessageTelegramRequest request =
+        MessageTelegramRequest.builder().chatId(chatId).parseMode(parseMode).text(message).build();
     telegramClient.notify(request);
   }
 }
