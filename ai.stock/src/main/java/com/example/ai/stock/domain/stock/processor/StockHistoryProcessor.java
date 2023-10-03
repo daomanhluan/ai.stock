@@ -1,7 +1,7 @@
-package com.example.ai.stock.aggregate.stock.processor;
+package com.example.ai.stock.domain.stock.processor;
 
-import com.example.ai.stock.aggregate.stock.model.AverageDataStatistic;
-import com.example.ai.stock.aggregate.stock.model.StockHistory;
+import com.example.ai.stock.domain.stock.model.AverageDataStatistic;
+import com.example.ai.stock.domain.stock.model.StockHistory;
 import com.example.ai.stock.infrastruture.repository.StockCategoryRepository;
 import com.example.ai.stock.infrastruture.repository.StockHistoryRepository;
 import com.example.ai.stock.service.utils.JsonUtils;

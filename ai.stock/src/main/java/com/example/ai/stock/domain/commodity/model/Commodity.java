@@ -1,4 +1,4 @@
-package com.example.ai.stock.aggregate.commodity.model;
+package com.example.ai.stock.domain.commodity.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,6 @@
 package com.example.ai.stock.service.crawler;
 
-import com.example.ai.stock.aggregate.stock.model.StockCategory;
-import com.example.ai.stock.aggregate.stock.model.StockHistory;
+import com.example.ai.stock.domain.stock.model.StockHistory;
 import com.example.ai.stock.configuration.constant.StockConstant;
 import com.example.ai.stock.infrastruture.entity.StockCategoryEntity;
 import com.example.ai.stock.infrastruture.entity.StockHistoryEntity;
@@ -23,11 +22,9 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -42,13 +39,14 @@ public class StockHistoryCrawler implements CrawlerData {
   private String URL_API;
 
 
-//  @EventListener(ApplicationReadyEvent.class)
+  @EventListener(ApplicationReadyEvent.class)
   @Override
   public void crawl() throws InterruptedException {
 
     List<StockCategoryEntity> stockCategoryEntities = stockCategoryRepository.findAll();
+    stockCategoryEntities.add(StockCategoryEntity.builder().code("SSI").build());
     for (StockCategoryEntity stockCategoryEntity : stockCategoryEntities) {
-      if(!StockConstant.PHAN_BON.contains(stockCategoryEntity.getCode())) continue;
+      if(!StockConstant.CHUNG_KHOAN.contains(stockCategoryEntity.getCode())) continue;
 
       String stockCode = stockCategoryEntity.getCode();
       List<StockHistory> stockHistories =

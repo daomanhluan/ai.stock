@@ -1,6 +1,6 @@
 package com.example.ai.stock.service.evaluate;
 
-import com.example.ai.stock.aggregate.stock.model.Stock;
+import com.example.ai.stock.domain.stock.model.Stock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,9 +1,9 @@
 package com.example.ai.stock.job;
 
-import com.example.ai.stock.aggregate.stock.model.AverageDataStatistic;
-import com.example.ai.stock.aggregate.stock.model.Stock;
-import com.example.ai.stock.aggregate.stock.model.StockHistory;
-import com.example.ai.stock.aggregate.stock.processor.StockHistoryProcessor;
+import com.example.ai.stock.domain.stock.model.AverageDataStatistic;
+import com.example.ai.stock.domain.stock.model.Stock;
+import com.example.ai.stock.domain.stock.model.StockHistory;
+import com.example.ai.stock.domain.stock.processor.StockHistoryProcessor;
 import com.example.ai.stock.configuration.constant.GlobalConstant;
 import com.example.ai.stock.infrastruture.entity.StockCategoryEntity;
 import com.example.ai.stock.infrastruture.feign_client.IboardClient;

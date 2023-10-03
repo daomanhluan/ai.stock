@@ -1,6 +1,6 @@
-package com.example.ai.stock.aggregate.stock.processor;
+package com.example.ai.stock.domain.stock.processor;
 
-import com.example.ai.stock.aggregate.stock.model.StockHistory;
+import com.example.ai.stock.domain.stock.model.StockHistory;
 
 import java.time.LocalDate;
 import java.util.List;

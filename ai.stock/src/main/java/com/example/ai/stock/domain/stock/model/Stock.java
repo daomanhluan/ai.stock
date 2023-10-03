@@ -1,4 +1,4 @@
-package com.example.ai.stock.aggregate.stock.model;
+package com.example.ai.stock.domain.stock.model;
 
 import com.example.ai.stock.configuration.constant.GlobalConstant;
 import lombok.AllArgsConstructor;

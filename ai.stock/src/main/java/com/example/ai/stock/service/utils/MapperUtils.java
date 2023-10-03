@@ -1,13 +1,11 @@
 package com.example.ai.stock.service.utils;
 
-import com.example.ai.stock.aggregate.commodity.model.Commodity;
-import com.example.ai.stock.aggregate.stock.model.StockHistory;
+import com.example.ai.stock.domain.commodity.model.Commodity;
+import com.example.ai.stock.domain.stock.model.StockHistory;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

@@ -1,7 +1,7 @@
 package com.example.ai.stock.service.crawler;
 
 import com.example.ai.stock.infrastruture.feign_client.TradingEconomyClient;
-import com.example.ai.stock.aggregate.commodity.model.Commodity;
+import com.example.ai.stock.domain.commodity.model.Commodity;
 import com.example.ai.stock.service.filter.CommodityFilter;
 import com.example.ai.stock.service.utils.MapperUtils;
 import lombok.RequiredArgsConstructor;
