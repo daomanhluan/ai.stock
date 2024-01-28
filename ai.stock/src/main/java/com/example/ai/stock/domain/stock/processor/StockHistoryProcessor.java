@@ -2,10 +2,11 @@ package com.example.ai.stock.domain.stock.processor;
 
 import com.example.ai.stock.domain.stock.model.AverageDataStatistic;
 import com.example.ai.stock.domain.stock.model.StockHistory;
+import com.example.ai.stock.infrastruture.entity.StockHistoryEntity;
 import com.example.ai.stock.infrastruture.repository.StockCategoryRepository;
 import com.example.ai.stock.infrastruture.repository.StockHistoryRepository;
-import com.example.ai.stock.service.utils.JsonUtils;
-import com.example.ai.stock.service.utils.ModelMapperUtils;
+import com.example.ai.stock.common.utils.JsonUtils;
+import com.example.ai.stock.common.utils.ModelMapperUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
@@ -27,19 +28,19 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
   @Override
   public List<StockHistory> findByCode(String code) {
     List<StockHistory> stockHistories =
-            ModelMapperUtils.mapList(stockHistoryRepository.findByCode(code), StockHistory.class);
+        ModelMapperUtils.mapList(stockHistoryRepository.findByCode(code), StockHistory.class);
     for (StockHistory stockHistory : stockHistories) {
       if (Objects.nonNull(stockHistory.getDataStatisticYesterday())) {
         try {
           stockHistory.setAverageDataStatisticYesterday(
-                  JsonUtils.map(stockHistory.getDataStatisticYesterday(), new TypeReference<>() {}));
+              JsonUtils.map(stockHistory.getDataStatisticYesterday(), new TypeReference<>() {}));
         } catch (Exception e) {
         }
       }
-      if (Objects.nonNull(stockHistory.getAverageDataStatisticToday())) {
+      if (Objects.nonNull(stockHistory.getDataStatisticToday())) {
         try {
           stockHistory.setAverageDataStatisticToday(
-                  JsonUtils.map(stockHistory.getDataStatisticToday(), new TypeReference<>() {}));
+              JsonUtils.map(stockHistory.getDataStatisticToday(), new TypeReference<>() {}));
         } catch (Exception e) {
         }
       }
@@ -50,7 +51,8 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
   @Override
   public List<StockHistory> findByCodesAndDay(List<String> codes, LocalDate date) {
     List<StockHistory> stockHistories =
-        ModelMapperUtils.mapList(stockHistoryRepository.findByCodeInAndDay(codes, date), StockHistory.class);
+        ModelMapperUtils.mapList(
+            stockHistoryRepository.findByCodeInAndDay(codes, date), StockHistory.class);
     for (StockHistory stockHistory : stockHistories) {
       if (Objects.nonNull(stockHistory.getDataStatisticYesterday())) {
         try {
@@ -71,9 +73,9 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
   }
 
   @Override
-  public void enrichDataStatisticYesterday(List<StockHistory> stockHistories) {
+  public void enrichDataStatisticToday(List<StockHistory> stockHistories) {
     List<StockHistory> recordProcessed = new ArrayList<>();
-
+    if(stockHistories.isEmpty()) return;
     for (StockHistory stockHistory : stockHistories) {
       List<StockHistory> stockHistories10Day = pagingData(recordProcessed, 10);
       List<StockHistory> stockHistories20Day = pagingData(recordProcessed, 20);
@@ -85,22 +87,25 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
       if (stockHistories10Day.isEmpty()) continue;
 
       try {
-        AverageDataStatistic dataYesterday =
-            buildAverageDataStatisticYesterday(
+        AverageDataStatistic dataToday =
+            buildAverageDataStatisticToday(
                 stockHistories10Day,
                 stockHistories20Day,
                 stockHistories50Day,
                 stockHistories100Day,
                 stockHistories200Day);
-        stockHistory.setDataStatisticYesterday(JsonUtils.toJson(dataYesterday));
+        stockHistory.setDataStatisticToday(JsonUtils.toJson(dataToday));
       } catch (JsonProcessingException e) {
         log.error(
-            "JsonProcessingException enrichDataStatisticYesterday {} {}", e, stockHistory.getId());
+            "JsonProcessingException enrichDataStatisticToday {} {}", e, stockHistory.getId());
       }
     }
+    log.info(Thread.currentThread().getName() + "==========enrichDataStatisticToday DONE {}",stockHistories.get(0).getCode());
   }
 
-  private AverageDataStatistic buildAverageDataStatisticYesterday(
+
+
+  private AverageDataStatistic buildAverageDataStatisticToday(
       List<StockHistory> stockHistories10Day,
       List<StockHistory> stockHistories20Day,
       List<StockHistory> stockHistories50Day,
@@ -122,16 +127,16 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
         (float)
             stockHistories200Day.stream().mapToDouble(e -> e.getClosedPrice()).average().orElse(0d);
 
-    Integer averageVolume10Day =
-        (int) stockHistories10Day.stream().mapToInt(e -> e.getVolume()).average().orElse(0d);
-    Integer averageVolume20Day =
-        (int) stockHistories20Day.stream().mapToInt(e -> e.getVolume()).average().orElse(0d);
-    Integer averageVolume50Day =
-        (int) stockHistories50Day.stream().mapToInt(e -> e.getVolume()).average().orElse(0d);
-    Integer averageVolume100Day =
-        (int) stockHistories100Day.stream().mapToInt(e -> e.getVolume()).average().orElse(0d);
-    Integer averageVolume200Day =
-        (int) stockHistories200Day.stream().mapToInt(e -> e.getVolume()).average().orElse(0d);
+    Float averageVolume10Day =
+        (float) stockHistories10Day.stream().mapToDouble(e -> e.getVolume()).average().orElse(0d);
+    Float averageVolume20Day =
+        (float) stockHistories20Day.stream().mapToDouble(e -> e.getVolume()).average().orElse(0d);
+    Float averageVolume50Day =
+        (float) stockHistories50Day.stream().mapToDouble(e -> e.getVolume()).average().orElse(0d);
+    Float averageVolume100Day =
+        (float) stockHistories100Day.stream().mapToDouble(e -> e.getVolume()).average().orElse(0d);
+    Float averageVolume200Day =
+        (float) stockHistories200Day.stream().mapToDouble(e -> e.getVolume()).average().orElse(0d);
 
     return AverageDataStatistic.builder()
         .averagePrice10Day(closedPrice10Day)
@@ -164,72 +169,10 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
         .collect(Collectors.toList());
   }
 
-  @Override
-  public void enrichDataStatisticToday(List<StockHistory> stockHistories) {
-    for (StockHistory stockHistory : stockHistories) {
-      AverageDataStatistic dataYesterday = stockHistory.getAverageDataStatisticYesterday();
-      if (Objects.nonNull(dataYesterday)) {
-        AverageDataStatistic dataToday =
-            AverageDataStatistic.builder()
-                .averagePrice10Day(
-                    (dataYesterday.getAveragePrice10Day() * 10
-                            + stockHistory.getClosedPrice()
-                            - dataYesterday.getLastPrice10Day())
-                        / 10)
-                .averagePrice20Day(
-                    (dataYesterday.getAveragePrice20Day() * 20
-                            + stockHistory.getClosedPrice()
-                            - dataYesterday.getLastPrice20Day())
-                        / 20)
-                .averagePrice50ay(
-                    (dataYesterday.getAveragePrice50ay() * 50
-                            + stockHistory.getClosedPrice()
-                            - dataYesterday.getLastPrice50Day())
-                        / 50)
-                .averagePrice100Day(
-                    (dataYesterday.getAveragePrice100Day() * 100
-                            + stockHistory.getClosedPrice()
-                            - dataYesterday.getLastPrice100Day())
-                        / 100)
-                .averagePrice200Day(
-                    (dataYesterday.getAveragePrice200Day() * 200
-                            + stockHistory.getClosedPrice()
-                            - dataYesterday.getLastPrice200Day())
-                        / 200)
-                .averageVolume10Day(
-                    (dataYesterday.getAverageVolume10Day() * 10
-                            + stockHistory.getVolume()
-                            - dataYesterday.getLastVolume10Day())
-                        / 10)
-                .averageVolume20Day(
-                    (dataYesterday.getAverageVolume20Day() * 20
-                            + stockHistory.getVolume()
-                            - dataYesterday.getLastVolume20Day())
-                        / 20)
-                .averageVolume50Day(
-                    (dataYesterday.getAverageVolume50Day() * 50
-                            + stockHistory.getVolume()
-                            - dataYesterday.getLastVolume50Day())
-                        / 50)
-                .averageVolume100Day(
-                    (dataYesterday.getAverageVolume100Day() * 100
-                            + stockHistory.getVolume()
-                            - dataYesterday.getLastVolume100Day())
-                        / 100)
-                .averageVolume200Day(
-                    (dataYesterday.getAverageVolume200Day() * 200
-                            + stockHistory.getVolume()
-                            - dataYesterday.getLastVolume200Day())
-                        / 200)
-                .build();
 
-        try {
-          stockHistory.setDataStatisticToday(JsonUtils.toJson(dataToday));
-        } catch (Exception e) {
-          log.error(">> enrichDataStatisticToday {} {}", e, stockHistory.getId());
-        }
-      }
-    }
+  @Override
+  public List<StockHistoryEntity> findByIds(List<Integer> ids) {
+    return stockHistoryRepository.findByIdIn(ids);
   }
 
   @Override
@@ -251,6 +194,11 @@ public class StockHistoryProcessor implements IStockHistoryProcessor {
 
   @Override
   public void enrichAveragePrice200Day(List<StockHistory> stockHistories) {}
+
+  @Override
+  public void saveAll(List<StockHistoryEntity> stockHistoryEntities) {
+    stockHistoryRepository.saveAllAndFlush(stockHistoryEntities);
+  }
 
   public void enrichAveragePrice10DayYesterday(List<StockHistory> stockHistories) {
     for (StockHistory stockHistory : stockHistories) {

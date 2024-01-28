@@ -10,49 +10,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "stock_history")
+@Table(name = "analyse_log")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StockHistoryEntity {
+public class AnalyseLogEntity {
   @Id
-  @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id;
 
   @Column(name = "code")
   private String code;
 
-  @Column(name = "opened_price")
-  private Float openedPrice;
-
-  @Column(name = "highest_price")
-  private Float highestPrice;
-
-  @Column(name = "lowest_price")
-  private Float lowestPrice;
-
-  @Column(name = "closed_price")
-  private Float closedPrice;
-
-  @Column(name = "volume")
-  private Integer volume;
-
-  @Column(name = "price_fluctuation")
-  private Float priceFluctuation;
-
-  @Column(name = "data_statistic_today")
-  private String dataStatisticToday;
-
-  @Column(name = "bollinger_band")
-  private String bollingerBandStr;
-
   @Column(name = "day")
   private LocalDate day;
 
-  @Column(name = "point_to_buy")
-  private Float pointToBuy;
+  @Column(name = "reason")
+  private String reason;
 
   @Column(name = "created", insertable = false, updatable = false)
   private LocalDateTime created;
